@@ -46,12 +46,11 @@ jobs:
 
       - name: Build repository.gold24680 zip
         run: |
-          rm -f repository.gold24680/*.zip
-          mkdir -p repository.gold24680
+          rm -f *.zip
           mkdir -p /tmp/repo_zip/repository.gold24680
           cp addon.xml /tmp/repo_zip/repository.gold24680/addon.xml
           cd /tmp/repo_zip
-          zip -r "$GITHUB_WORKSPACE/repository.gold24680/repository.gold24680-1.0.0.zip" repository.gold24680/
+          zip -r "$GITHUB_WORKSPACE/repository.gold24680-1.0.0.zip" repository.gold24680/
 
       - name: Generate addons.xml
         run: |
