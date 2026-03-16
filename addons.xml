@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='utf-8'?>
+<addons>
+  <addon id="repository.gold24680" name="Gold24680 Repository" version="1.0.0" provider-name="Yousef">
+    <extension point="xbmc.addon.repository" name="Gold24680 Repository">
+      <info compressed="false">https://gold24680.github.io/repository.gold24680/addons.xml</info>
+      <checksum>https://gold24680.github.io/repository.gold24680/addons.xml.md5</checksum>
+      <datadir zip="true">https://gold24680.github.io/repository.gold24680/</datadir>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+      <summary lang="en_GB">Gold24680 Kodi Repository</summary>
+      <description lang="en_GB">Personal repository for Kodi addons by Yousef.</description>
+      <platform>all</platform>
+    </extension>
+  </addon>
+  <addon id="script.charactercast" name="Character Cast Images" version="5.0.0" provider-name="Yousef">
+    <requires>
+      <import addon="xbmc.python" version="3.0.0" />
+      <import addon="xbmc.addon" version="21.0.0" />
+    </requires>
+    <extension point="xbmc.service" library="service.py" start="startup" />
+    <extension point="xbmc.python.script" library="default.py" />
+    <extension point="xbmc.addon.metadata">
+      <summary lang="en_GB">Character role images from TVDB</summary>
+      <description lang="en_GB">
+      Replaces actor headshots with character role images from TheTVDB.
+      Works for both movies and TV shows. Requires a TVDB API key.
+      Only changes images — all TMDb Helper functionality stays intact.
+    </description>
+      <platform>all</platform>
+      <license>GPL-2.0-only</license>
+    </extension>
+  </addon>
+</addons>
