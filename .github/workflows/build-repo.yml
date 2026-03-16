@@ -1,0 +1,84 @@
+name: Build Kodi Repository
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - 'addons.xml'
+      - 'addons.xml.md5'
+      - '**/*.zip'
+      - 'index.html'
+      - 'README.md'
+  workflow_dispatch:
+  repository_dispatch:
+    types: [addon_updated]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Clone script.charactercast
+        run: git clone https://github.com/gold24680/script.charactercast /tmp/script.charactercast
+
+      - name: Get addon version
+        id: vars
+        run: |
+          VERSION=$(python3 -c "import xml.etree.ElementTree as ET; print(ET.parse('/tmp/script.charactercast/addon.xml').getroot().get('version'))")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Building version $VERSION"
+
+      - name: Build script.charactercast zip
+        run: |
+          rm -f script.charactercast/*.zip
+          mkdir -p script.charactercast
+          cd /tmp/script.charactercast
+          ZIPFILE="$GITHUB_WORKSPACE/script.charactercast/script.charactercast-${{ steps.vars.outputs.version }}.zip"
+          zip -r "$ZIPFILE" addon.xml default.py service.py \
+            --exclude "*.pyc" --exclude "*/__pycache__/*"
+          [ -d resources ]  && zip -r "$ZIPFILE" resources/
+          [ -d skin_files ] && zip -r "$ZIPFILE" skin_files/
+
+      - name: Build repository.gold24680 zip
+        run: |
+          rm -f repository.gold24680/*.zip
+          mkdir -p repository.gold24680
+          mkdir -p /tmp/repo_zip/repository.gold24680
+          cp addon.xml /tmp/repo_zip/repository.gold24680/addon.xml
+          cd /tmp/repo_zip
+          zip -r "$GITHUB_WORKSPACE/repository.gold24680/repository.gold24680-1.0.0.zip" repository.gold24680/
+
+      - name: Generate addons.xml
+        run: |
+          python3 - <<'PYEOF'
+          import xml.etree.ElementTree as ET
+
+          repo_root  = ET.parse('addon.xml').getroot()
+          addon_root = ET.parse('/tmp/script.charactercast/addon.xml').getroot()
+
+          addons = ET.Element('addons')
+          addons.append(repo_root)
+          addons.append(addon_root)
+
+          ET.indent(addons, space='  ')
+          ET.ElementTree(addons).write('addons.xml', encoding='unicode', xml_declaration=True)
+          print("addons.xml generated")
+          PYEOF
+
+      - name: Generate addons.xml.md5
+        run: |
+          md5sum addons.xml | cut -d' ' -f1 > addons.xml.md5
+          echo "MD5: $(cat addons.xml.md5)"
+
+      - name: Commit and push
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git diff --staged --quiet || git commit -m "chore: build repo v${{ steps.vars.outputs.version }}"
+          git push
