@@ -37,12 +37,13 @@ jobs:
         run: |
           rm -f script.charactercast/*.zip
           mkdir -p script.charactercast
-          cd /tmp/script.charactercast
+          # Zip from /tmp so the archive contains script.charactercast/ as the top-level folder
+          cd /tmp
           ZIPFILE="$GITHUB_WORKSPACE/script.charactercast/script.charactercast-${{ steps.vars.outputs.version }}.zip"
-          zip -r "$ZIPFILE" addon.xml default.py service.py \
-            --exclude "*.pyc" --exclude "*/__pycache__/*"
-          [ -d resources ]  && zip -r "$ZIPFILE" resources/
-          [ -d skin_files ] && zip -r "$ZIPFILE" skin_files/
+          zip -r "$ZIPFILE" script.charactercast/ \
+            --exclude "*.pyc" \
+            --exclude "*/__pycache__/*" \
+            --exclude "*.git*"
 
       - name: Build repository.gold24680 zip
         run: |
