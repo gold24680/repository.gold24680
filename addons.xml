@@ -14,9 +14,10 @@
           <platform>all</platform>
       </extension>
   </addon>
-  <addon id="script.charactercast" name="Character Cast Images" version="5.0.0" provider-name="Yousef">
+  <addon id="script.charactercast" name="Character Cast Images" version="5.1.0" provider-name="Yousef">
       <requires>
           <import addon="xbmc.python" version="3.0.0" />
+          <import addon="xbmc.addon" version="21.0.0" />
       </requires>
       <extension point="xbmc.service" library="service.py" start="startup" />
       <extension point="xbmc.python.script" library="default.py" />
@@ -25,6 +26,7 @@
           <description lang="en_GB">
         Replaces actor headshots with character role images from TheTVDB.
         Works for both movies and TV shows. Requires a TVDB API key.
+        Only changes images — all TMDb Helper functionality stays intact.
       </description>
           <platform>all</platform>
           <license>GPL-2.0-only</license>
