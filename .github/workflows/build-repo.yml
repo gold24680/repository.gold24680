@@ -50,7 +50,8 @@ jobs:
           mkdir -p /tmp/repo_zip/repository.gold24680
           cp addon.xml /tmp/repo_zip/repository.gold24680/addon.xml
           cd /tmp/repo_zip
-          zip -r "$GITHUB_WORKSPACE/repository.gold24680-1.0.0.zip" repository.gold24680/
+          REPO_VERSION=$(python3 -c "import xml.etree.ElementTree as ET; print(ET.parse('$GITHUB_WORKSPACE/addon.xml').getroot().get('version'))")
+          zip -r "$GITHUB_WORKSPACE/repository.gold24680-${REPO_VERSION}.zip" repository.gold24680/
 
       - name: Generate addons.xml
         run: |
@@ -60,17 +61,15 @@ jobs:
           repo_xml  = ET.parse('addon.xml').getroot()
           addon_xml = ET.parse('/tmp/script.charactercast/addon.xml').getroot()
 
-          # Build addons.xml manually to guarantee exact Kodi-compatible format
           lines = ['<?xml version="1.0" encoding="UTF-8"?>', '<addons>']
 
-          def addon_to_xml(node, indent=2):
-              ET.indent(node, space=' ' * indent)
+          def node_to_str(node, extra_indent=2):
+              ET.indent(node, space='    ')
               s = ET.tostring(node, encoding='unicode')
-              # Re-indent each line
-              return '\n'.join('  ' + l if l.strip() else l for l in s.split('\n'))
+              return '\n'.join((' ' * extra_indent) + l for l in s.split('\n'))
 
-          lines.append(addon_to_xml(repo_xml))
-          lines.append(addon_to_xml(addon_xml))
+          lines.append(node_to_str(repo_xml))
+          lines.append(node_to_str(addon_xml))
           lines.append('</addons>')
 
           with open('addons.xml', 'w', encoding='utf-8', newline='\n') as f:
@@ -80,10 +79,7 @@ jobs:
           PYEOF
 
       - name: Generate addons.xml.md5
-        run: |
-          # No trailing newline in md5 file - Kodi is strict about this
-          printf '%s' "$(md5sum addons.xml | cut -d' ' -f1)" > addons.xml.md5
-          echo "MD5: $(cat addons.xml.md5)"
+        run: printf '%s' "$(md5sum addons.xml | cut -d' ' -f1)" > addons.xml.md5
 
       - name: Commit and push
         run: |
