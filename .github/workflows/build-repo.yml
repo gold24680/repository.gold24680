@@ -57,21 +57,32 @@ jobs:
           python3 - <<'PYEOF'
           import xml.etree.ElementTree as ET
 
-          repo_root  = ET.parse('addon.xml').getroot()
-          addon_root = ET.parse('/tmp/script.charactercast/addon.xml').getroot()
+          repo_xml  = ET.parse('addon.xml').getroot()
+          addon_xml = ET.parse('/tmp/script.charactercast/addon.xml').getroot()
 
-          addons = ET.Element('addons')
-          addons.append(repo_root)
-          addons.append(addon_root)
+          # Build addons.xml manually to guarantee exact Kodi-compatible format
+          lines = ['<?xml version="1.0" encoding="UTF-8"?>', '<addons>']
 
-          ET.indent(addons, space='  ')
-          ET.ElementTree(addons).write('addons.xml', encoding='unicode', xml_declaration=True)
+          def addon_to_xml(node, indent=2):
+              ET.indent(node, space=' ' * indent)
+              s = ET.tostring(node, encoding='unicode')
+              # Re-indent each line
+              return '\n'.join('  ' + l if l.strip() else l for l in s.split('\n'))
+
+          lines.append(addon_to_xml(repo_xml))
+          lines.append(addon_to_xml(addon_xml))
+          lines.append('</addons>')
+
+          with open('addons.xml', 'w', encoding='utf-8', newline='\n') as f:
+              f.write('\n'.join(lines) + '\n')
+
           print("addons.xml generated")
           PYEOF
 
       - name: Generate addons.xml.md5
         run: |
-          md5sum addons.xml | cut -d' ' -f1 > addons.xml.md5
+          # No trailing newline in md5 file - Kodi is strict about this
+          printf '%s' "$(md5sum addons.xml | cut -d' ' -f1)" > addons.xml.md5
           echo "MD5: $(cat addons.xml.md5)"
 
       - name: Commit and push
