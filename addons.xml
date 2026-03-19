@@ -14,7 +14,7 @@
           <platform>all</platform>
       </extension>
   </addon>
-  <addon id="script.charactercast" name="Character Cast Images" version="5.3.6" provider-name="Yousef">
+  <addon id="script.charactercast" name="Character Cast Images" version="5.3.8" provider-name="Yousef">
       <requires>
           <import addon="xbmc.python" version="3.0.0" />
       </requires>
