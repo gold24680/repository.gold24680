@@ -24,7 +24,9 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Clone script.charactercast
-        run: git clone https://github.com/gold24680/script.charactercast /tmp/script.charactercast
+        env:
+          GH_TOKEN: ${{ secrets.CLONE_TOKEN }}
+        run: git clone https://x-access-token:${{ secrets.CLONE_TOKEN }}@github.com/gold24680/script.charactercast /tmp/script.charactercast
 
       - name: Get addon version
         id: vars
